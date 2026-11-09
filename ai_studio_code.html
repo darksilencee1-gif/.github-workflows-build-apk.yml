@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>M-Message | CONNECT • SHARE • LIVE</title>
+  
+  <!-- Tailwind CSS & Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg-base: #050508;
+      --bg-surface: #0b0c16;
+      --bg-card: rgba(18, 19, 35, 0.75);
+      --neon-cyan: #00d2ff;
+      --neon-purple: #7928ca;
+      --vip-grad: linear-gradient(135deg, #7928ca 0%, #00d2ff 100%);
+      --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .vip-glass {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+    }
+
+    .vip-glow {
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.25);
+    }
+
+    .vip-glow-btn {
+      background: var(--vip-grad);
+      color: #ffffff;
+      box-shadow: 0 4px 15px rgba(121, 40, 202, 0.35);
+      transition: all 0.25s ease;
+    }
+    .vip-glow-btn:active {
+      transform: scale(0.96);
+      filter: brightness(1.15);
+    }
+
+    /* Scrollbar Style */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Top Navigation Bar -->
+  <header id="top-bar" class="vip-glass fixed top-0 left-0 right-0 z-40 px-4 py-3 flex items-center justify-between border-b border-white/5">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center font-black text-xl tracking-wider text-black shadow-lg">
+        M
+      </div>
+      <div>
+        <h1 class="font-extrabold text-base tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-cyan-400">
+          M-MESSAGE
+        </h1>
+        <p class="text-[9px] tracking-widest text-slate-400 uppercase font-semibold">CONNECT • SHARE • LIVE</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <button onclick="switchTab('ai')" class="text-cyan-400 hover:text-white transition p-2 relative" title="AI Assistant">
+        <i class="fa-solid fa-brain-circuit text-lg"></i>
+      </button>
+      <button onclick="switchTab('admin')" class="text-purple-400 hover:text-white transition p-2" title="Owner Admin">
+        <i class="fa-solid fa-shield-halved text-lg"></i>
+      </button>
+      <button onclick="switchTab('profile')" class="w-8 h-8 rounded-full border border-cyan-400/50 overflow-hidden">
+        <img id="nav-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="w-full h-full object-cover">
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Area (Dynamic Tab Content) -->
+  <main id="app-viewport" class="flex-1 pt-16 pb-20 px-3 max-w-xl mx-auto w-full">
+    
+    <!-- 1. FEED SECTION -->
+    <section id="tab-feed" class="space-y-4">
+      <!-- Stories Rail -->
+      <div class="flex gap-3 overflow-x-auto py-2 no-scrollbar">
+        <div onclick="createStory()" class="flex-shrink-0 flex flex-col items-center gap-1 cursor-pointer">
+          <div class="w-16 h-16 rounded-full border-2 border-dashed border-cyan-400 flex items-center justify-center bg-cyan-950/20 text-cyan-400 text-xl">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <span class="text-[11px] text-slate-300">قصتك</span>
+        </div>
+        <div id="stories-list" class="flex gap-3"></div>
+      </div>
+
+      <!-- Post Creation Card -->
+      <div class="vip-glass rounded-2xl p-4 shadow-xl">
+        <textarea id="post-input" placeholder="ماذا يدور في ذهنك اليوم يا بطل؟" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:border-cyan-400 resize-none h-20 text-slate-200"></textarea>
+        <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5">
+          <div class="flex gap-3 text-slate-400 text-base">
+            <label class="cursor-pointer hover:text-cyan-400"><i class="fa-regular fa-image"></i><input type="file" id="post-file" class="hidden" accept="image/*,video/*"></label>
+            <button class="hover:text-purple-400"><i class="fa-solid fa-hashtag"></i></button>
+          </div>
+          <button onclick="publishPost()" class="vip-glow-btn px-5 py-1.5 rounded-xl text-xs font-bold">نشر الآن</button>
+        </div>
+      </div>
+
+      <!-- Posts Stream Container -->
+      <div id="posts-container" class="space-y-4"></div>
+    </section>
+
+    <!-- 2. CHAT & MESSAGES SECTION -->
+    <section id="tab-chats" class="hidden space-y-3">
+      <div class="flex gap-2">
+        <button onclick="setChatSubTab('direct')" id="btn-chat-direct" class="flex-1 py-2 text-xs font-bold rounded-xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300">الرسائل الخاصة</button>
+        <button onclick="setChatSubTab('groups')" id="btn-chat-groups" class="flex-1 py-2 text-xs font-bold rounded-xl bg-white/5 border border-white/5 text-slate-400">المجموعات والقنوات</button>
+      </div>
+
+      <div class="relative">
+        <input type="text" placeholder="بحث في المحادثات..." class="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-9 text-xs focus:outline-none focus:border-cyan-400">
+        <i class="fa-solid fa-magnifying-glass absolute right-3 top-3 text-xs text-slate-400"></i>
+      </div>
+
+      <!-- Chat Rooms List -->
+      <div id="conversations-list" class="space-y-2"></div>
+    </section>
+
+    <!-- 3. REELS SECTION -->
+    <section id="tab-reels" class="hidden">
+      <div id="reels-container" class="space-y-4"></div>
+    </section>
+
+    <!-- 4. CINEMA SECTION -->
+    <section id="tab-cinema" class="hidden space-y-4">
+      <div class="vip-glass rounded-2xl p-5 border border-purple-500/20 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-300">
+            <i class="fa-solid fa-film text-purple-400 ml-1"></i> سينما M-MESSAGE
+          </h2>
+          <span id="cinema-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">غير مفعل</span>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          قسم الأفلام والمسلسلات الحصرية متاح عبر اشتراكات مفعلة برقم الواتساب الرسمي للمؤسس.
+        </p>
+        <div class="flex gap-2">
+          <a href="https://wa.me/201158698465?text=طلب%20تفعيل%20اشتراك%20سينما%20M-Message" target="_blank" class="vip-glow-btn flex-1 py-2 rounded-xl text-center text-xs font-bold">
+            <i class="fa-brands fa-whatsapp text-sm ml-1"></i> تفعيل الاشتراك (+201158698465)
+          </a>
+          <button onclick="verifyCinemaSubscription()" class="bg-white/10 hover:bg-white/15 px-4 rounded-xl text-xs font-semibold">تحقق</button>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <h3 class="text-xs font-bold text-slate-300">المحتوى المقترح</h3>
+        <div id="cinema-movies-grid" class="grid grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- 5. AI ASSISTANT SECTION (WITH OFFLINE MATH MODE) -->
+    <section id="tab-ai" class="hidden flex flex-col h-[75vh]">
+      <div class="vip-glass rounded-2xl p-3 mb-2 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-white">مساعد M-Message الذكي</h3>
+            <span id="ai-status" class="text-[10px] text-cyan-400">متصل (Online + Offline Calculator)</span>
+          </div>
+        </div>
+        <button onclick="clearAIChat()" class="text-xs text-slate-400 hover:text-white"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+
+      <div id="ai-messages" class="flex-1 overflow-y-auto space-y-3 p-2 text-xs">
+        <div class="vip-glass p-3 rounded-2xl max-w-[85%] text-slate-200">
+          أهلاً بك! أنا مساعدك الذكي في M-Message. يمكنني الإجابة عن أسئلتك، حل المعادلات الرياضية وتلخيص النصوص ومساعدتك برمجياً.
+        </div>
+      </div>
+
+      <div class="flex gap-2 mt-2">
+        <input type="text" id="ai-input" placeholder="اكتب سؤالك أو معادلة رياضية (مثال: 45 * 12 + 10)..." class="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-cyan-400 text-white">
+        <button onclick="sendAIMessage()" class="vip-glow-btn px-4 rounded-xl text-xs"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </section>
+
+    <!-- 6. DEVELOPER HUB SECTION (FIXED LAYOUT & NO CUTOFF) -->
+    <section id="tab-developer" class="hidden space-y-4">
+      <div class="vip-glass rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        <!-- Independent Banner -->
+        <div class="relative h-44 w-full bg-gradient-to-r from-purple-950 via-slate-900 to-cyan-950 overflow-hidden">
+          <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#00d2ff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          <div class="absolute bottom-2 right-4 text-xs font-bold tracking-widest text-white/40 uppercase">OFFICIAL DEVELOPER HUB</div>
+        </div>
+
+        <!-- Avatars & Profiles Container (No Cropping) -->
+        <div class="relative px-6 pb-6 pt-0">
+          <div class="flex flex-col sm:flex-row items-center sm:items-end justify-between -mt-16 mb-4 gap-4">
+            <div class="flex items-end gap-3 z-10">
+              <!-- Founder Photo with Neon Halo -->
+              <div class="relative">
+                <div class="w-28 h-28 rounded-2xl border-2 border-cyan-400 p-1 bg-[#0b0c16] shadow-2xl">
+                  <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300" class="w-full h-full object-cover object-top rounded-xl" alt="Mahmoud Ashraf">
+                </div>
+                <div class="absolute -bottom-2 -right-1 bg-cyan-500 text-black text-[9px] font-black px-2 py-0.5 rounded-md">المؤسس</div>
+              </div>
+
+              <!-- Father Photo Tribute -->
+              <div class="relative">
+                <div class="w-20 h-20 rounded-2xl border border-yellow-500/80 p-1 bg-[#0b0c16] shadow-xl" title="والد المطور">
+                  <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200" class="w-full h-full object-cover object-top rounded-xl" alt="والد المطور">
+                </div>
+                <div class="absolute -bottom-2 -right-1 bg-yellow-500 text-black text-[9px] font-black px-2 py-0.5 rounded-md">الوالد الكريم</div>
+              </div>
+            </div>
+
+            <!-- WhatsApp Direct Action Button -->
+            <a href="https://wa.me/201158698465" target="_blank" class="vip-glow-btn px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2">
+              <i class="fa-brands fa-whatsapp text-sm"></i>
+              <span>+201158698465</span>
+            </a>
+          </div>
+
+          <div class="space-y-2 mt-4 text-right">
+            <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400">
+              Mahmoud Ashraf Khalil Ibrahim Abu Kholoul
+            </h2>
+            <p class="text-xs text-cyan-400 font-semibold">Founder, Lead Architect & Security Engineer</p>
+            <p class="text-xs text-slate-300 leading-relaxed pt-2 border-t border-white/5">
+              مطور ومؤسس شبكة M-Message الاجتماعية. تم بناء النظام بالكامل وفق أحدث معايير الأمان وقواعد البيانات الموزعة لحفظ خصوصية وبيانات المستخدمين.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. OWNER ADMIN DASHBOARD (SECURE & ROLE PROTECTED) -->
+    <section id="tab-admin" class="hidden space-y-4">
+      <div class="vip-glass rounded-2xl p-4 border border-red-500/30">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-black text-red-400"><i class="fa-solid fa-lock ml-1"></i> لوحة تحكم مالك النظام</h2>
+          <span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-md border border-red-500/30 font-mono">AUTHORIZED ONLY</span>
+        </div>
+        
+        <!-- App Status Toggle -->
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button onclick="toggleSystemMaintenance()" id="btn-maint" class="p-3 rounded-xl bg-white/5 border border-white/10 text-right">
+            <div class="text-[10px] text-slate-400">حالة التطبيق</div>
+            <div id="maint-status" class="text-xs font-bold text-emerald-400 mt-1">المنظومة نشطة (Live)</div>
+          </button>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-right">
+            <div class="text-[10px] text-slate-400">إجمالي الحسابات</div>
+            <div id="stat-users" class="text-xs font-bold text-cyan-400 mt-1">1,248 مستخدم</div>
+          </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="space-y-2">
+          <button onclick="adminBroadcast()" class="w-full py-2 px-3 rounded-xl bg-purple-600/30 border border-purple-500/40 text-xs font-bold text-white hover:bg-purple-600/50 flex items-center justify-between">
+            <span><i class="fa-solid fa-bullhorn ml-2"></i> إرسال إشعار عام لجميع المستخدمين</span>
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          </button>
+          <button onclick="adminGrantCinema()" class="w-full py-2 px-3 rounded-xl bg-cyan-600/30 border border-cyan-500/40 text-xs font-bold text-white hover:bg-cyan-600/50 flex items-center justify-between">
+            <span><i class="fa-solid fa-key ml-2"></i> تفعيل اشتراك سينما لمستخدم</span>
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          </button>
+          <button onclick="adminExportBackup()" class="w-full py-2 px-3 rounded-xl bg-emerald-600/30 border border-emerald-500/40 text-xs font-bold text-white hover:bg-emerald-600/50 flex items-center justify-between">
+            <span><i class="fa-solid fa-database ml-2"></i> تنزيل نسخة احتياطية لقاعدة البيانات (JSON)</span>
+            <i class="fa-solid fa-download text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FULLSCREEN VIP CHAT MODAL (KEYBOARD FRIENDLY & NO BOTTOM BAR OVERLAP) -->
+  <div id="active-chat-view" class="fixed inset-0 z-50 bg-[#050508] hidden flex flex-col">
+    <!-- Chat Header -->
+    <div class="vip-glass px-4 py-3 flex items-center justify-between border-b border-white/10">
+      <div class="flex items-center gap-3">
+        <button onclick="closeActiveChat()" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-300 hover:text-white">
+          <i class="fa-solid fa-arrow-right">

@@ -1,0 +1,12 @@
+{
+  "appId": "com.mmessage.vip",
+  "appName": "M-Message",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true
+  }
+}
